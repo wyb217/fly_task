@@ -1,0 +1,3 @@
+obj-y += fly_task.o
+obj-y += square_task/
+obj-y += triangle_task/
