@@ -38,8 +38,9 @@
 extern SemaphoreHandle_t fly_Semaphore;
 extern State state;
 extern Stage stage;
+extern int f_flag;
 static setpoint_t setpoint;
-static float height = 0.3;
+static float height = 0.5;
 static void setHoverSetpoint(setpoint_t *setpoint, float vx, float vy, float z, float yawrate)
 {
     setpoint->mode.z = modeAbs;
@@ -59,24 +60,27 @@ void control_fly_triangle(int fly_case)
     switch (fly_case)
     {
     case stage_one:
-        for(int i=0;i< 100;i++){
-            setHoverSetpoint(&setpoint, -0.865, 0.5, height ,0);
+        for (int i = 0; i < 100; i++)
+        {
+            setHoverSetpoint(&setpoint, -0.288, 0.167, height, 0);
             vTaskDelay(M2T(10));
         }
         DEBUG_PRINT("stage_one_triangle\n");
         break;
-    
+
     case stage_two:
-        for(int i=0;i< 100;i++){
-            setHoverSetpoint(&setpoint, 0, -1, height ,0);
+        for (int i = 0; i < 100; i++)
+        {
+            setHoverSetpoint(&setpoint, 0, -0.33, height, 0);
             vTaskDelay(M2T(10));
         }
         DEBUG_PRINT("stage_two_triangle\n");
         break;
-    
+
     case stage_three:
-        for(int i=0;i< 100;i++){
-            setHoverSetpoint(&setpoint, 0.865, 0.5, height ,0);
+        for (int i = 0; i < 100; i++)
+        {
+            setHoverSetpoint(&setpoint, 0.288, 0.167, height, 0);
             vTaskDelay(M2T(10));
         }
         DEBUG_PRINT("stage_three_triangle\n");
@@ -86,41 +90,60 @@ void control_fly_triangle(int fly_case)
 void triangle_task(void *param)
 {
     BaseType_t result = pdFALSE;
-    while(1){
-        if(result == pdFALSE){
+    while (1)
+    {
+        if (result == pdFALSE)
+        {
             result = xSemaphoreTake(fly_Semaphore, portMAX_DELAY);
-        }else{
+        }
+        else
+        {
             switch (state)
             {
             case flying:
-                if(stage == onGround){
-                    take_off();
-                    stage ++;
-                }else{
-                    control_fly_triangle(stage);
 
-                    if(stage == stage_three){
-                        result = pdFALSE;
-                        stage = stage_one;
-                        xSemaphoreGive(fly_Semaphore);
-                        vTaskDelay(M2T(10));
-                    }else stage++;
+                control_fly_triangle(stage);
+
+                if (stage == stage_three)
+                {
+
+                    if (f_flag == 0)
+                    {
+                        state = landing;
+                    }
+                    result = pdFALSE;
+                    stage = stage_one;
+                    xSemaphoreGive(fly_Semaphore);
+                    vTaskDelay(M2T(10));
                 }
+                else
+                {
+                    stage++;
+                }
+
                 break;
-            
+
             case landing:
+                DEBUG_PRINT("landing\n");
                 land();
+                DEBUG_PRINT("land succ\n");
                 state = idle;
                 stage = onGround;
+
                 vTaskDelay(M2T(1000));
                 break;
-            
+
             case idle:
+                if (stage == onGround && f_flag == 1)
+                {
+                    DEBUG_PRINT("take off is runing...\n");
+                    take_off();
+                    stage++;
+                    state = flying;
+                }
                 vTaskDelay(M2T(10));
                 break;
-
             }
         }
     }
-    
 }

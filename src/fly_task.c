@@ -35,7 +35,7 @@
 #include "task.h"
 #include "log.h"
 #include "square_task.h"
-// #include "triangle_task.h"
+#include "triangle_task.h"
 
 #include "semphr.h"
 #define DEBUG_MODULE "THEAPP"
@@ -49,10 +49,11 @@ TaskHandle_t appMainTask_Handlar;
 #define SQUARE_TASK_PRI 2
 TaskHandle_t square_task_Handlar;
 
-// #define TRIANGLE_TASK_SIZE 2*configMINIMAL_STACK_SIZE
-// #define TRIANGLE_TASK_PRI 1
-// TaskHandle_t triangle_task_Handlar;
+#define TRIANGLE_TASK_SIZE 2*configMINIMAL_STACK_SIZE
+#define TRIANGLE_TASK_PRI 1
+TaskHandle_t triangle_task_Handlar;
 QueueHandle_t fly_Semaphore;
+int f_flag=0;
 void appMainTask(void *param);
 
 
@@ -65,7 +66,7 @@ void appMain()
     xSemaphoreGive(fly_Semaphore);
     xTaskCreate(square_task, "square_task", SQUARE_TASK_SIZE, NULL, SQUARE_TASK_PRI, &square_task_Handlar);
     DEBUG_PRINT("square_task ...succ\n");
-    // xTaskCreate(triangle_task, "triangel_task", TRIANGLE_TASK_SIZE, NULL, TRIANGLE_TASK_PRI, &triangle_task_Handlar);
-    // DEBUG_PRINT("triangle_task ...succ\n");
+    xTaskCreate(triangle_task, "triangel_task", TRIANGLE_TASK_SIZE, NULL, TRIANGLE_TASK_PRI, &triangle_task_Handlar);
+    DEBUG_PRINT("triangle_task ...succ\n");
 }
 
