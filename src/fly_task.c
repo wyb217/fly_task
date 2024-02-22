@@ -36,7 +36,7 @@
 #include "log.h"
 #include "square_task.h"
 #include "triangle_task.h"
-
+#include "eight_shaped_task.h"
 #include "semphr.h"
 #define DEBUG_MODULE "THEAPP"
 #include "debug.h"
@@ -46,16 +46,20 @@
 TaskHandle_t appMainTask_Handlar;
 
 #define SQUARE_TASK_SIZE 2 * configMINIMAL_STACK_SIZE
-#define SQUARE_TASK_PRI 2
+#define SQUARE_TASK_PRI 3 // 数字大优先级高
 TaskHandle_t square_task_Handlar;
 
-#define TRIANGLE_TASK_SIZE 2*configMINIMAL_STACK_SIZE
-#define TRIANGLE_TASK_PRI 1
+#define TRIANGLE_TASK_SIZE 2 * configMINIMAL_STACK_SIZE
+#define TRIANGLE_TASK_PRI 2
 TaskHandle_t triangle_task_Handlar;
-QueueHandle_t fly_Semaphore;
-int f_flag=0;
-void appMainTask(void *param);
 
+#define EIGHT_SHAPED_TASK_SIZE 2 * configMINIMAL_STACK_SIZE
+#define EIGHT_SHAPED_TASK_PRI 2
+TaskHandle_t eight_shaped_task_Handlar;
+
+QueueHandle_t fly_Semaphore;
+int f_flag = 0;
+void appMainTask(void *param);
 
 void appMain()
 {
@@ -64,9 +68,13 @@ void appMain()
     vTaskDelay(M2T(3000));
     fly_Semaphore = xSemaphoreCreateBinary();
     xSemaphoreGive(fly_Semaphore);
+
     xTaskCreate(square_task, "square_task", SQUARE_TASK_SIZE, NULL, SQUARE_TASK_PRI, &square_task_Handlar);
     DEBUG_PRINT("square_task ...succ\n");
+
     xTaskCreate(triangle_task, "triangel_task", TRIANGLE_TASK_SIZE, NULL, TRIANGLE_TASK_PRI, &triangle_task_Handlar);
     DEBUG_PRINT("triangle_task ...succ\n");
-}
 
+    xTaskCreate(eight_shaped_task, "eight_shaped_task", EIGHT_SHAPED_TASK_SIZE, NULL, EIGHT_SHAPED_TASK_PRI, &eight_shaped_task_Handlar);
+    DEBUG_PRINT("eight_shaped_task ...succ\n");
+}

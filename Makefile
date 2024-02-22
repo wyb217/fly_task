@@ -19,7 +19,7 @@ CRAZYFLIE_BASE := ../..
 #
 EXTRA_CFLAGS += -I$(PWD)/src/square_task
 EXTRA_CFLAGS += -I$(PWD)/src/triangle_task
-
+EXTRA_CFLAGS += -I$(PWD)/src/eight_shaped_task
 #
 # We override the default OOT_CONFIG here, we could also name our config
 # to oot-config and that would be the default.
